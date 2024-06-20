@@ -28,15 +28,12 @@ def rag(document, query, course):
     # Create and search results from Elasticsearchdas
     elastic_search_result = elastic_search(query, document = modified_document, course = course, num_results = 3)
     
-    # Return the top score of the Elastic search result for Homework
-    # print(elastic_search_result)
-    
     # Create a prompt for the OpenAI API based on the search results of MiniSearch and Elasticsearch
     min_search_prompt       = build_prompt(query, mini_search_result)
-    print (f"the length of the prompt is {len(min_search_prompt)}")
+    print (f"the length of the prompt based on Min Search is : {len(min_search_prompt)}")
     
     elastic_search_prompt   = build_prompt(query, elastic_search_result)
-    print (f"the length of the prompt is {len(elastic_search_prompt)}")
+    print (f"the length of the prompt based on Elastic Search is :  {len(elastic_search_prompt)}")
         
     # Return the response from the OpenAI API
     print("Min search based prompt")
