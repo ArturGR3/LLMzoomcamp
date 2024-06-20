@@ -1,0 +1,7 @@
+tqdm 
+notebook==7.1.2 
+openai 
+elasticsearch 
+pandas 
+scikit-learn
+python-dotenv
