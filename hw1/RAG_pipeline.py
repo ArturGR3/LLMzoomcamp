@@ -3,6 +3,7 @@ from min_search import minisearch
 from modify_doc import modify_docs
 from elastic_search import elastic_search
 from open_ai_prompt import llm
+from gemini_api import llm_gemini
 import click
 import json
 
@@ -37,14 +38,16 @@ def rag(document, query, course):
         
     # Return the response from the OpenAI API
     print("Min search based prompt")
-    min_response     = llm(min_search_prompt)
+    min_response     = llm_gemini(min_search_prompt)
+    # min_response     = llm(min_search_prompt) # This is for OpenAI API
     print(f"Min search response via OpenAI API:\n{min_response}")
     
     print('-----------------')
     print('-----------------')
     
     print("Elastic search based prompt")
-    elastic_response = llm(elastic_search_prompt)
+    elastic_response = llm_gemini(elastic_search_prompt)
+    # elastic_response = llm(elastic_search_prompt) # This is for OpenAI API
     print(f"Elastic search response via OpenAI API:\n{elastic_response}")
     # Run this function from the command line
 if __name__ == '__main__':
