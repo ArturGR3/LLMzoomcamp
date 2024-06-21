@@ -1,3 +1,4 @@
+![Alt text](rag_pipeline.drawio.svg)
 
 ### Short description of the files:
 * [Preparing the documents](modify_doc.py)
@@ -5,6 +6,7 @@
 * [Searching via Elastic search](elastic_search.py)
 * [Creating a prompt with the context for Open AI](prompt_building.py)
 * [Connecting to Open AI client and executing the query](open_ai_prompt.py)
+  * [Connecting to Gemini client and executing the query](gemini_api.py)
 * [Wrapping everything in the RAG pipeline](RAG_pipeline.py)
 
 ### eg. of execution: 
