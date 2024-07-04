@@ -15,11 +15,9 @@ import json
 @click.option('--course', prompt = "Course?", help='Based on what course you want to search the document?')
 
 def rag(document, query, course):
-    
     """
     OpenAI API response to a query based on the search results from MiniSearch and Elasticsearch
     """
-    
     # Load the documents from the JSON file
     modified_document = modify_docs(doc = document)
     

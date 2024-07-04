@@ -1,21 +1,20 @@
-### Start olama server
-```bash
-ollama start 
+
+### Notes for HW2 
+Start olama server
+```bash start olama
+ollama start  
 ```
 
-### Run ollama with phi3
-
+Run ollama with phi3
 ```bash 
 olama run phi3
 ```
-
-### Stop olama server
+Stop olama server
 ```bash
 sudo systemctl stop ollama.service
 ```
 
-###  Questions 1. Create a docker container with olama and get the version of olama using exec  
-[1] Create a docker container 
+[1] Create a docker container with ollama
 ```bash 
 docker run -it \
     --rm \
@@ -24,28 +23,28 @@ docker run -it \
     --name ollama \
     ollama/ollama
 ```
-[2] Get the version of Ollama 
+[2] Get the version of ollama
 ```bash 
 docker exec -it ollama ollama -v
 ``` 
-ollama version is 0.1.48
 
-###  Questions 2. Find metadata about this model
+Find metadata about this model
 ```bash
 docker exec -it ollama cat /root/.ollama/models/manifests/registry.ollama.ai/library/gemma/2b
 ```
 
-### Question 3. Run Ollama gemma:2b (10*10)
+Run Ollama gemma:2b (10*10)
 ```bash
 echo 10*10 | docker exec -i ollama ollama run gemma:2b
 ```
 
-### Question 4. Download weight locally 
+Download weight locally 
 
 [1] Stop container 
 ```bash 
 docker stop ollama
 ```
+
 [2] Create a new container that stores weights locallaly
 ```bash 
 docker run -it \
@@ -57,9 +56,8 @@ docker run -it \
 
 docker exec -it ollama ollama pull gemma:2b
 ```
-### Question 5. Adding the weights
-Create a Dockerfile: 
 
+Adding the weights to docker run
 ```Dockerfile
 FROM ollama/ollama
 
@@ -67,6 +65,7 @@ FROM ollama/ollama
 COPY ollama_files /root/.ollama
 ```
 
+build a docker container with locally saved weights
 ```bash 
 docker build -t ollama_with_weights .
 docker run -it \
@@ -75,7 +74,7 @@ docker run -it \
         --name ollama_with_weights \
         ollama_with_weights
 ```
-
+run a prompt against ollama with temperature paramater
 ```bash 
 curl http://localhost:11434/api/generate -d '{
   "model": "gemma:2b",
