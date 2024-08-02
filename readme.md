@@ -1,5 +1,4 @@
-
-Docker for ElasticSearch indexing
+### Starting Elasticsearch
 ```bash 
 docker run -it \
     --rm \
@@ -10,4 +9,7 @@ docker run -it \
     -e "xpack.security.enabled=false" \
     -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
     docker.elastic.co/elasticsearch/elasticsearch:8.4.3
+```
+```bash
+export OPENAI_API_KEY="********" 
 ```
