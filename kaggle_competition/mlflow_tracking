@@ -1,0 +1,131 @@
+import instructor
+from openai import OpenAI
+import pandas as pd
+from pydantic import BaseModel, Field
+import json
+import mlflow
+import mlflow.pyfunc
+
+# Existing imports and setup
+client = instructor.patch(OpenAI())
+
+used_model = "gpt-4o-mini"
+
+context = """
+You are an expert in solving math problems using both logical reasoning and programming skills. Given a math problem, your task is to:
+Provide step by step solution on how to solve the problem. Implement step by step solution as a python function that calculates intermidiate steps and returns the answer.
+\nYOU MUST PROVIDE the answer in this format:
+step by step plan: ...
+asnwer: ...
+python code: def solver():
+...   
+""".strip()
+
+class Character(BaseModel):
+    step_by_step: str = Field(description="Step by step solution to the problem.")
+    answer: str = Field(examples=['1','1.3','2; 3','13213; 1313'], description="Numerical answer(s) to the problem given the answer formating instructions")
+    python_function: str = Field(description="A python function that implemenets the step by step solution logic to calculate the answer")
+
+def generate_intermediate_reasoning(question, model=used_model):
+    resp = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": context},
+            {"role": "user", "content": question},
+        ],
+        response_model=Character,
+    )
+    return resp
+
+def execute_program(code: str):
+    function_name = code.split("(")[0].split("def ")[1]
+    code = code.strip() + f"\nans = {function_name}()"
+    try:
+        exec_globals = {}
+        exec(code, exec_globals)
+        return exec_globals.get("ans")
+    except Exception as e:
+        print(f"Error executing code: {str(e)}")
+        return None
+
+def process_data(row_json, model=used_model):
+    problem_id = row_json['problem_id']
+    problem_text = row_json['problem_text']
+    ground_truth = row_json['answer']
+    response = generate_intermediate_reasoning(problem_text, model)
+    python_execution = execute_program(response.python_function)
+    
+    return {
+        "problem_id": problem_id,
+        "problem_text": problem_text,
+        "ground_truth": ground_truth,
+        "step_by_step": response.step_by_step,
+        "answer": response.answer,
+        "python_function": response.python_function,
+        "python_execution": str(python_execution)
+    }
+
+def calculate_accuracy(data, field1, field2):
+    correct = sum(1 for row in data if row[field1] == row[field2])
+    return correct / len(data)
+
+def run_experiment(train_data, num_samples=10, model=used_model, run_name="Experiment"):
+    mlflow.start_run(run_name=run_name)
+    
+    # Log parameters
+    mlflow.log_param("num_samples", num_samples)
+    mlflow.log_param("model", model)
+    
+    # Process data
+    data = [process_data(row.to_dict(), model) for _, row in train_data.iloc[:num_samples].iterrows()]
+    
+    # Calculate metrics
+    accuracy_python_execution = calculate_accuracy(data, 'ground_truth', 'python_execution')
+    accuracy_answer = calculate_accuracy(data, 'answer', 'ground_truth')
+    accuracy_answer_python_execution = calculate_accuracy(data, 'answer', 'python_execution')
+    share_answer = sum(1 for row in data if (row['answer'] == row['ground_truth'] or 
+                                             row['python_execution'] == row['ground_truth'])) / len(data)
+    
+    # Log metrics
+    mlflow.log_metric("accuracy_python_execution", accuracy_python_execution)
+    mlflow.log_metric("accuracy_answer", accuracy_answer)
+    mlflow.log_metric("accuracy_answer_python_execution", accuracy_answer_python_execution)
+    mlflow.log_metric("share_answer", share_answer)
+    
+    # Log artifacts
+    results_df = pd.DataFrame(data)
+    results_json = results_df.to_json(orient="records")
+    with open("results.json", "w") as f:
+        f.write(results_json)
+    mlflow.log_artifact("results.json")     
+    mlflow.end_run()
+    
+    return data, results_df
+
+# Main execution
+if __name__ == "__main__":
+    # Set up MLflow
+    mlflow.set_tracking_uri("http://localhost:5000")  # Use this if you want to use a local MLflow server
+    mlflow.set_experiment("Math Problem Solver")
+
+    # Load data
+    train = pd.read_csv("data/train.csv")
+    
+    # Run experiment
+    data, results_df = run_experiment(train, num_samples=10, model="gpt-4o-mini", run_name="GPT 4o mini 10 sample baseline")
+    
+    # Print summary
+    print(f"Accuracy (Python Execution): {calculate_accuracy(data, 'ground_truth', 'python_execution'):.2f}")
+    print(f"Accuracy (Answer): {calculate_accuracy(data, 'answer', 'ground_truth'):.2f}")
+    print(f"Accuracy (Answer vs Python Execution): {calculate_accuracy(data, 'answer', 'python_execution'):.2f}")
+    print(f"Share of Correct Answers: {sum(1 for row in data if (row['answer'] == row['ground_truth'] or row['python_execution'] == row['ground_truth'])) / len(data):.2f}")
+
+    # Analyze discrepancies
+    discrepancies = results_df[results_df['answer'] != results_df['python_execution']]
+    print(f"\nNumber of discrepancies between answer and python execution: {len(discrepancies)}")
+    if len(discrepancies) > 0:
+        print("\nSample discrepancy:")
+        print(json.dumps(discrepancies.iloc[0].to_dict(), indent=2))
+        
+        
+
