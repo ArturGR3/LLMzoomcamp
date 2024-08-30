@@ -62,22 +62,36 @@ if __name__ == "__main__":
     """
     
     # Show the JSON schema of the MathSolution model
-    MathSolution.model_json_schema()    
+    print(json.dumps(MathSolution.model_json_schema(),indent=4))
 
     # the output will be 
     ###
-    # {'properties': {'answer': {'description': 'The final numerical answer to the problem',
-    #    'title': 'Answer',
-    #    'type': 'string'},
-    #   'step_by_step': {'description': 'A detailed, step-by-step explanation of how to solve the problem',
-    #    'title': 'Step By Step',
-    #    'type': 'string'},
-    #   'python_code': {'description': 'Python code that implements the solution and returns the answer',
-    #    'title': 'Python Code',
-    #    'type': 'string'}},
-    #  'required': ['answer', 'step_by_step', 'python_code'],
-    #  'title': 'MathSolution',
-    #  'type': 'object'}
+    # {
+    #     "properties": {
+    #         "answer": {
+    #             "description": "The final numerical answer to the problem",
+    #             "title": "Answer",
+    #             "type": "string"
+    #         },
+    #         "step_by_step": {
+    #             "description": "A detailed, step-by-step explanation of how to solve the problem",
+    #             "title": "Step By Step",
+    #             "type": "string"
+    #         },
+    #         "python_code": {
+    #             "description": "Python code that implements the solution and returns the answer",
+    #             "title": "Python Code",
+    #             "type": "string"
+    #         }
+    #     },
+    #     "required": [
+    #         "answer",
+    #         "step_by_step",
+    #         "python_code"
+    #     ],
+    #     "title": "MathSolution",
+    #     "type": "object"
+    # }
     ### 
     
     solution = solve_math_problem(problem)
