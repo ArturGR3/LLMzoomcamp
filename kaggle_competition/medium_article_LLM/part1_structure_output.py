@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Optional
 from pydantic import BaseModel, Field
 import instructor
@@ -14,7 +15,7 @@ class MathSolution(BaseModel):
     answer: str = Field(..., description="The final numerical answer to the problem")
     step_by_step: str = Field(..., description="A detailed, step-by-step explanation of how to solve the problem")
     python_code: str = Field(..., description="Python code that implements the solution and returns the answer")
-
+    
 # Create the prompt function
 def create_math_prompt(problem_text: str) -> str:
     return f"""
@@ -60,7 +61,35 @@ if __name__ == "__main__":
     If the perimeter of the rectangle is 26 units, what are the dimensions of the rectangle?
     """
     
+    # Show the JSON schema of the MathSolution model
+    MathSolution.model_json_schema()    
+
+    # the output will be 
+    ###
+    # {'properties': {'answer': {'description': 'The final numerical answer to the problem',
+    #    'title': 'Answer',
+    #    'type': 'string'},
+    #   'step_by_step': {'description': 'A detailed, step-by-step explanation of how to solve the problem',
+    #    'title': 'Step By Step',
+    #    'type': 'string'},
+    #   'python_code': {'description': 'Python code that implements the solution and returns the answer',
+    #    'title': 'Python Code',
+    #    'type': 'string'}},
+    #  'required': ['answer', 'step_by_step', 'python_code'],
+    #  'title': 'MathSolution',
+    #  'type': 'object'}
+    ### 
+    
     solution = solve_math_problem(problem)
+    
+    # print the raw output of LLM 
+    print(json.dumps(solution.model_dump(), indent=4))
+    
+    # {
+    # "answer": "Length = 14 units, Width = 11 units",
+    # "step_by_step": "1. Let the width of the rectangle be represented by 'w' units.\n2. According to the problem, the length is 3 units longer than the width, so we can express the length as 'l = w + 3' units.\n3. The formula for the perimeter (P) of a rectangle is given by: P = 2l + 2w.\n4. The problem states that the perimeter is 26 units, so we can set up the equation: 2(w + 3) + 2w = 26.\n5. Simplifying this equation:\n   - 2w + 6 + 2w = 26\n   - 4w + 6 = 26\n   - 4w = 26 - 6\n   - 4w = 20\n   - w = 20 / 4\n   - w = 5 units (this is the width)\n6. Now, substitute w back into the equation for length:\n   - l = w + 3 \n   - l = 5 + 3 = 8 units (this is the length)\n7. Therefore, the dimensions of the rectangle are: Length = 8 units, Width = 5 units.",
+    # "python_code": "def find_rectangle_dimensions(perimeter):\n    # Check if the perimeter is even, as the dimensions must be integers\n    if perimeter % 2 != 0:\n        return \"Perimeter must be an even number for integer dimensions.\"\n    # Let the width be 'w'\n    # The formula for perimeter of rectangle: P = 2(l + w)\n    # Since length l = w + 3 (from the problem statement)\n    # We have: 2(w + 3 + w) = perimeter\n    # Simplifying: 2(2w + 3) = perimeter\n    # 4w + 6 = perimeter\n    # Rearranging gives:\n    w = (perimeter - 6) / 4\n    # Calculate the width\n    w = (perimeter - 6) / 4\n    # If width is negative, return an error\n    if w < 0:\n        return \"Invalid dimensions for the given perimeter.\"\n    # Calculate length\n    l = w + 3\n    return (l, w)\n\n# Example usage:\nresult = find_rectangle_dimensions(26)\nresult"
+    # }
 
     print(f"Answer: {solution.answer}")
     print(f"\nStep-by-step solution:\n{solution.step_by_step}")
