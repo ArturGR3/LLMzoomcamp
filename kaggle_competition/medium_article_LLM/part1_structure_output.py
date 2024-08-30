@@ -108,4 +108,39 @@ if __name__ == "__main__":
     print(f"Answer: {solution.answer}")
     print(f"\nStep-by-step solution:\n{solution.step_by_step}")
     print(f"\nPython code:\n{solution.python_code}")
+    
+    # Answer: Length = 14 units, Width = 11 units
+
+    # Step-by-step solution:
+    # 1. Let the width of the rectangle be represented by 'w'.  
+    # 2. According to the problem, the length 'l' is 3 units longer than the width: l = w + 3.  
+    # 3. The formula for the perimeter 'P' of a rectangle is given by: P = 2l + 2w.  
+    # 4. Substitute the given perimeter into the formula: 2l + 2w = 26.  
+    # 5. Replace 'l' with 'w + 3': 2(w + 3) + 2w = 26.  
+    # 6. Simplify the equation: 2w + 6 + 2w = 26.  
+    # 7. Combine like terms: 4w + 6 = 26.  
+    # 8. Subtract 6 from both sides: 4w = 20.  
+    # 9. Divide by 4: w = 5.  
+    # 10. Now, find the length using l = w + 3: l = 5 + 3 = 8.  
+    # 11. So the dimensions of the rectangle are: Width = 5 units and Length = 8 units.
+
+    # Python code:
+    # def rectangle_dimensions(perimeter):
+    #     # Given perimeter of the rectangle
+    #     P = perimeter
+    #     # The variable for width
+    #     w = 0
+    #     # Loop to find the width and corresponding length
+    #     for w in range(1, P//2):  # Width should be at least 1 and less than half the perimeter
+    #         l = w + 3  # Length is 3 units longer than the width
+    #         if 2 * (l + w) == P:  # Check if perimeter matches
+    #             # Return dimensions when found
+    #             return (l, w)
+    #     # In case no valid dimensions found
+    #     return None
+
+    # # Example usage
+    # result = rectangle_dimensions(26)
+    # # Return the final answer as Length and Width
+    # result
 
